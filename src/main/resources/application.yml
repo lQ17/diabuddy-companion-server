@@ -25,3 +25,5 @@ mybatis-plus:
     db-config:
       # 主键类型：自增
       id-type: auto
+
+#debug: true
