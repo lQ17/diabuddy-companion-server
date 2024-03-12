@@ -3,6 +3,7 @@ package org.nap.diabuddy_companion_server.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.nap.diabuddy_companion_server.common.JWTUtils;
 import org.nap.diabuddy_companion_server.common.R;
 import org.nap.diabuddy_companion_server.entity.User;
@@ -70,7 +71,7 @@ public class UserController {
         Map<String, String> map = new HashMap<>();//用来存放payload
         map.put("id",userFromDB.getId().toString());
         map.put("username",userFromDB.getUsername());
-        String token = JWTUtils.getToken(map);
+        String token = "Bearer " + JWTUtils.getToken(map);
 
         Map<String, Object> response = new HashMap<>();
         response.put("token", token);
@@ -82,7 +83,11 @@ public class UserController {
     @GetMapping("/info")
     public R<UserVO> getInfo (@RequestParam("userId") Integer userId){
         User user = userService.getById(userId);
-        UserVO userVO = new UserVO(user.getId(), user.getUsername() , user.getUserPic(), user.getAccountCreationDate());
+
+        // 自动生成VO
+        ModelMapper modelMapper = new ModelMapper();
+        UserVO userVO = modelMapper.map(user, UserVO.class);
+
         return R.success(userVO);
     }
 

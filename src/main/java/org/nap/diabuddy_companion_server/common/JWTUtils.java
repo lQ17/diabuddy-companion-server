@@ -27,11 +27,12 @@ public class JWTUtils {
     }
     /**
      * 验证token
-     * @param 
+     * @param
      * @return
      */
     public static void verify(String token){
-        JWT.require(Algorithm.HMAC256(TOKEN)).build().verify(token);
+        String tokenToVerify = token.substring(7);
+        JWT.require(Algorithm.HMAC256(TOKEN)).build().verify(tokenToVerify);
     }
     /**
      * 获取token中payload 使用require()
