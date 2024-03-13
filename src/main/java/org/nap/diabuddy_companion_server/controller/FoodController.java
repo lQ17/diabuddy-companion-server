@@ -2,17 +2,14 @@ package org.nap.diabuddy_companion_server.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.nap.diabuddy_companion_server.common.R;
 import org.nap.diabuddy_companion_server.entity.Food;
-import org.nap.diabuddy_companion_server.entity.FoodVO;
-import org.nap.diabuddy_companion_server.entity.UserVO;
+import org.nap.diabuddy_companion_server.entity.VO.FoodVOForDetail;
+import org.nap.diabuddy_companion_server.entity.VO.FoodVOForList;
+import org.nap.diabuddy_companion_server.entity.VO.FoodVOForTotalDetail;
 import org.nap.diabuddy_companion_server.service.FoodService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -46,22 +43,107 @@ public class FoodController {
         }
 
 
-        List<FoodVO> list = foodService.list(queryWrapper).stream()
-                .map(this::toVO) // 使用方法引用来应用转换
+        List<FoodVOForList> list = foodService.list(queryWrapper).stream()
+                .map(this::toVOForList) // 使用方法引用来应用转换
                 .collect(Collectors.toList()); // 收集转换结果为一个新列表
         Map<String, Object> response = new HashMap<>();
         response.put("list", list);
         return R.success(response);
     }
 
+    @GetMapping("/detail/{id}")
+    public R<Object> getFoodDetail(@PathVariable(value = "id") Integer foodId) {
+        if (foodId == null) {
+            // 参数不足或错误
+            return R.error("缺少食物信息，请重新查询");
+        }
 
-    private FoodVO toVO(Food food){
-        FoodVO foodVO = new FoodVO();
-        foodVO.setFoodId(food.getFoodId());
-        foodVO.setFoodName(food.getFoodName());
-        foodVO.setFoodPic(food.getFoodPic());
-        foodVO.setEnergy(food.getEnergy());
-        foodVO.setCarb(food.getCarb());
-        return foodVO;
+        Food food = foodService.getById(foodId);
+        if (food == null) {
+            // 未找到对应的食物信息
+            return R.error("未找到对应的食物信息");
+        }
+
+        FoodVOForDetail foodVOForDetail = toVOForDetail(food);
+        return R.success(foodVOForDetail);
     }
+
+    @GetMapping("/total-detail/{id}")
+    public R<Object> getFoodTotalDetail(@PathVariable(value = "id") Integer foodId){
+        if (foodId == null) {
+            // 参数不足或错误
+            return R.error("缺少食物信息，请重新查询");
+        }
+        Food food = foodService.getById(foodId);
+        if (food == null) {
+            // 未找到对应的食物信息
+            return R.error("未找到对应的食物信息");
+        }
+        FoodVOForTotalDetail foodVOForTotalDetail = toVOForTotalDetail(food);
+        return R.success(foodVOForTotalDetail);
+    }
+    private FoodVOForList toVOForList(Food food){
+        FoodVOForList foodVOForList = new FoodVOForList();
+        foodVOForList.setFoodId(food.getFoodId());
+        foodVOForList.setFoodName(food.getFoodName());
+        foodVOForList.setFoodPic(food.getFoodPic());
+        foodVOForList.setEnergy(food.getEnergy());
+        foodVOForList.setCarb(food.getCarb());
+        return foodVOForList;
+    }
+
+    private FoodVOForDetail toVOForDetail(Food food){
+        FoodVOForDetail foodVOForDetail = new FoodVOForDetail();
+        foodVOForDetail.setFoodId(food.getFoodId());
+        foodVOForDetail.setFoodName(food.getFoodName());
+        foodVOForDetail.setFoodPic(food.getFoodPic());
+        foodVOForDetail.setEnergy(food.getEnergy());
+        foodVOForDetail.setCarb(food.getCarb());
+        foodVOForDetail.setFat(food.getFat());
+        foodVOForDetail.setProtein(food.getProtein());
+        foodVOForDetail.setGlycemicIndex(food.getGlycemicIndex());
+        foodVOForDetail.setGlycemicLoad(food.getGlycemicLoad());
+        foodVOForDetail.setDietaryFiber(food.getDietaryFiber());
+        foodVOForDetail.setSodium(food.getSodium());
+        return foodVOForDetail;
+    }
+
+    private FoodVOForTotalDetail toVOForTotalDetail(Food food) {
+        FoodVOForTotalDetail foodVOForTotalDetail = new FoodVOForTotalDetail();
+        foodVOForTotalDetail.setFoodName(food.getFoodName());
+        foodVOForTotalDetail.setEdiblePart(food.getEdiblePart());
+        foodVOForTotalDetail.setWater(food.getWater());
+        foodVOForTotalDetail.setEnergy(food.getEnergy());
+        foodVOForTotalDetail.setProtein(food.getProtein());
+        foodVOForTotalDetail.setFat(food.getFat());
+        foodVOForTotalDetail.setCholesterol(food.getCholesterol());
+        foodVOForTotalDetail.setAsh(food.getAsh());
+        foodVOForTotalDetail.setCarb(food.getCarb());
+        foodVOForTotalDetail.setDietaryFiber(food.getDietaryFiber());
+        foodVOForTotalDetail.setCarotene(food.getCarotene());
+        foodVOForTotalDetail.setVitaminA(food.getVitaminA());
+        foodVOForTotalDetail.setAlphaTe(food.getAlphaTe());
+        foodVOForTotalDetail.setThiamin(food.getThiamin());
+        foodVOForTotalDetail.setRiboflavin(food.getRiboflavin());
+        foodVOForTotalDetail.setNiacin(food.getNiacin());
+        foodVOForTotalDetail.setVitaminC(food.getVitaminC());
+        foodVOForTotalDetail.setCalcium(food.getCalcium());
+        foodVOForTotalDetail.setPhosphorus(food.getPhosphorus());
+        foodVOForTotalDetail.setPotassium(food.getPotassium());
+        foodVOForTotalDetail.setSodium(food.getSodium());
+        foodVOForTotalDetail.setMagnesium(food.getMagnesium());
+        foodVOForTotalDetail.setIron(food.getIron());
+        foodVOForTotalDetail.setZinc(food.getZinc());
+        foodVOForTotalDetail.setSelenium(food.getSelenium());
+        foodVOForTotalDetail.setCopper(food.getCopper());
+        foodVOForTotalDetail.setManganese(food.getManganese());
+        foodVOForTotalDetail.setIodine(food.getIodine());
+        foodVOForTotalDetail.setSaturatedFattyAcids(food.getSaturatedFattyAcids());
+        foodVOForTotalDetail.setMonounsaturatedFattyAcids(food.getMonounsaturatedFattyAcids());
+        foodVOForTotalDetail.setPolyunsaturatedFattyAcids(food.getPolyunsaturatedFattyAcids());
+        foodVOForTotalDetail.setTotalFattyAcids(food.getTotalFattyAcids());
+
+        return foodVOForTotalDetail;
+    }
+
 }

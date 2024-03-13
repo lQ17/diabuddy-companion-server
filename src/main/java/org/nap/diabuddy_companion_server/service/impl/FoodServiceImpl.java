@@ -8,4 +8,5 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class FoodServiceImpl extends ServiceImpl<FoodMapper, Food> implements FoodService {
+
 }

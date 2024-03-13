@@ -1,27 +1,34 @@
 package org.nap.diabuddy_companion_server.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.nap.diabuddy_companion_server.common.JWTUtils;
 import org.nap.diabuddy_companion_server.common.R;
 import org.nap.diabuddy_companion_server.entity.User;
-import org.nap.diabuddy_companion_server.entity.UserVO;
+import org.nap.diabuddy_companion_server.entity.VO.UserVO;
+import org.nap.diabuddy_companion_server.service.EmailService;
 import org.nap.diabuddy_companion_server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 @Slf4j
 @RestController
 @RequestMapping("/user")
 public class UserController {
 
-    @Autowired
+    @Resource
     private UserService userService;
+
+    @Resource
+    private EmailService emailService;
 
     @PostMapping("/login-by-email-password")
     public R<Object> loginByEmailPassword(HttpServletRequest request, @RequestBody User user) {
@@ -91,5 +98,49 @@ public class UserController {
         return R.success(userVO);
     }
 
+    @PostMapping("/register-by-email")
+    public R<Object> regByEmail(@RequestBody Map<String, Object> payload){
 
+        String email = (String) payload.get("email");
+        String password = (String) payload.get("password");
+        String repassword = (String) payload.get("repassword");
+        String emailMsg = (String) payload.get("emailMsg");
+
+        boolean validateSuccess = emailService.validateCode(email, emailMsg);
+
+        if(!password.equals(repassword)){
+            R.error("两次密码不一致");
+        }
+
+        if(!validateSuccess){
+            R.error("验证码错误！");
+        }
+
+        User user = new User();
+        user.setEmail(email);
+        user.setPassword(password);
+        user.setAccountCreationDate(new Date());
+        user.setAccountStatus(1);
+
+        // 生成随机用户名
+        String baseUsername = email.split("@")[0]; // 获取邮箱前缀
+        String randomSuffix = generateRandomString(5); // 生成5位随机小写字母
+        user.setUsername(baseUsername + randomSuffix);
+
+
+        userService.save(user);
+
+        return R.success(null);
+    }
+
+    private String generateRandomString(int length) {
+        String characters = "abcdefghijklmnopqrstuvwxyz";
+        StringBuilder result = new StringBuilder();
+        Random random = new Random();
+        while (length > 0) {
+            result.append(characters.charAt(random.nextInt(characters.length())));
+            length--;
+        }
+        return result.toString();
+    }
 }

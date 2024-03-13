@@ -6,4 +6,5 @@ import org.nap.diabuddy_companion_server.entity.Food;
 
 @Mapper
 public interface FoodMapper extends BaseMapper<Food> {
+
 }

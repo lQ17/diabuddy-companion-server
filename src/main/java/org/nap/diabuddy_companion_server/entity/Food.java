@@ -1,10 +1,12 @@
 package org.nap.diabuddy_companion_server.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 
 @Data
 public class Food {
-
+    @TableId(value = "food_id", type = IdType.AUTO)
     private Integer foodId;
     private String foodName;
     private String foodPic;
