@@ -10,7 +10,7 @@ import java.util.Date;
 
 @Data
 @TableName("agents_records")
-public class RecordAgents implements Serializable {
+public class RecordAgent implements Serializable {
 
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
