@@ -1,6 +1,7 @@
 package org.nap.diabuddy_companion_server.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.nap.diabuddy_companion_server.common.R;
 import org.nap.diabuddy_companion_server.entity.Food;
@@ -23,6 +24,7 @@ public class FoodController {
 
     @Autowired
     private FoodService foodService;
+
 
     @GetMapping("/list")
     public R<Object> getFoodList(@RequestParam(value = "foodCategory", required = false) String foodCategory,
@@ -82,6 +84,29 @@ public class FoodController {
         FoodVOForTotalDetail foodVOForTotalDetail = toVOForTotalDetail(food);
         return R.success(foodVOForTotalDetail);
     }
+
+    @PostMapping("/add")
+    public R<Object> updateFoodFromUser(@RequestBody Food food){
+
+        // 无意义食物
+        if(food.getFoodName() == null || food.getCarb() == null){
+            return R.error("无效食物，至少填写食物名称和碳水化合物质量");
+        }
+
+        // 如果上传公共食物，先把isReviewed置0
+        if(food.getIsPublicFood() == 1){
+            food.setIsReviewed(0);
+        }
+
+
+        boolean isSaved = foodService.save(food);
+
+        if(!isSaved){
+            return R.error("提交了错误的信息，请重试");
+        }
+        return R.success(null);
+    }
+
     private FoodVOForList toVOForList(Food food){
         FoodVOForList foodVOForList = new FoodVOForList();
         foodVOForList.setFoodId(food.getFoodId());

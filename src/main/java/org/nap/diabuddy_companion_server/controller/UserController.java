@@ -11,7 +11,6 @@ import org.nap.diabuddy_companion_server.entity.User;
 import org.nap.diabuddy_companion_server.entity.VO.UserVO;
 import org.nap.diabuddy_companion_server.service.EmailService;
 import org.nap.diabuddy_companion_server.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
