@@ -1,11 +1,11 @@
-package org.nap.diabuddy_companion_server.entity.DTO;
+package org.nap.diabuddy_companion_server.entity.VO;
 
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 @Data
-public class UserTotalPlanDTO {
+public class UserTotalPlanVO {
     private Integer id; // 此处为userId
 
     // 控糖参数
@@ -20,6 +20,12 @@ public class UserTotalPlanDTO {
     // 治疗方案
     private String treatmentOption;
     private String remark; // 来自plan总表
+
+    // 子对象
+    private InsulinPump insulinPump;
+    private PreMealAndBasal preMealAndBasal;
+    private Premixed premixed;
+    private Agent agent;
 
     @Getter
     @Setter

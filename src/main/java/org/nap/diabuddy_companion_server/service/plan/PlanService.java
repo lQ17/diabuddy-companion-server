@@ -1,7 +1,7 @@
 package org.nap.diabuddy_companion_server.service.plan;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import org.nap.diabuddy_companion_server.entity.user.User;
+import org.nap.diabuddy_companion_server.entity.plan.Plan;
 
-public interface UserPlanService extends IService<User> {
+public interface PlanService extends IService<Plan> {
 }

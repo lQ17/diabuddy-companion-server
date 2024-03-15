@@ -1,4 +1,4 @@
-package org.nap.diabuddy_companion_server.controller.plan;
+package org.nap.diabuddy_companion_server.controller.user;
 
 
 import jakarta.annotation.Resource;
@@ -8,7 +8,7 @@ import org.nap.diabuddy_companion_server.entity.DTO.PlanDTO;
 import org.nap.diabuddy_companion_server.entity.plan.InsulinPumpBasalRate;
 import org.nap.diabuddy_companion_server.entity.user.User;
 import org.nap.diabuddy_companion_server.service.plan.InsulinPumpBasalRateService;
-import org.nap.diabuddy_companion_server.service.plan.UserPlanService;
+import org.nap.diabuddy_companion_server.service.user.ParamPlanService;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -18,10 +18,10 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequestMapping("/plan")
-public class UserPlanController {
+public class ParamPlanController {
 
     @Resource
-    private UserPlanService userPlanService;
+    private ParamPlanService paramPlanService;
 
     @Resource
     private InsulinPumpBasalRateService insulinPumpBasalRateService;
@@ -29,7 +29,7 @@ public class UserPlanController {
     @GetMapping("/tdd/{userId}")
     public R<Map> getTDD(@PathVariable("userId") Integer userId){
 
-        User user = userPlanService.getById(userId);
+        User user = paramPlanService.getById(userId);
 
         HashMap<String, Float> res = new HashMap<>();
 
@@ -41,7 +41,7 @@ public class UserPlanController {
     @PostMapping("/tdd")//
     public R<Object> addTDD(@RequestBody PlanDTO planDTO){
 
-        User user = userPlanService.getById(planDTO.getUserId());
+        User user = paramPlanService.getById(planDTO.getUserId());
 
         if(user == null){
             return R.error("保存失败");
@@ -49,7 +49,7 @@ public class UserPlanController {
 
         user.setTdd(planDTO.getTdd());
 
-        userPlanService.updateById(user);
+        paramPlanService.updateById(user);
 
         return R.success(null);
     }
@@ -57,7 +57,7 @@ public class UserPlanController {
     @PostMapping("/icr")//
     public R<Object> addICR(@RequestBody PlanDTO planDTO){
 
-        User user = userPlanService.getById(planDTO.getUserId());
+        User user = paramPlanService.getById(planDTO.getUserId());
 
         if(user == null){
             return R.error("保存失败");
@@ -65,7 +65,7 @@ public class UserPlanController {
 
         user.setIcr(planDTO.getIcr());
 
-        userPlanService.updateById(user);
+        paramPlanService.updateById(user);
 
         return R.success(null);
     }
@@ -73,7 +73,7 @@ public class UserPlanController {
     @PostMapping("/isf")//
     public R<Object> addISF(@RequestBody PlanDTO planDTO){
 
-        User user = userPlanService.getById(planDTO.getUserId());
+        User user = paramPlanService.getById(planDTO.getUserId());
 
         if(user == null){
             return R.error("保存失败");
@@ -81,7 +81,7 @@ public class UserPlanController {
 
         user.setIsf(planDTO.getIsf());
 
-        userPlanService.updateById(user);
+        paramPlanService.updateById(user);
 
         return R.success(null);
     }
@@ -114,7 +114,7 @@ public class UserPlanController {
     @PostMapping("/day-eating")//
     public R<Object> addDayEating(@RequestBody PlanDTO planDTO){
 
-        User user = userPlanService.getById(planDTO.getUserId());
+        User user = paramPlanService.getById(planDTO.getUserId());
 
         if(user == null){
             return R.error("保存失败");
@@ -125,7 +125,7 @@ public class UserPlanController {
         user.setDayEatingFat(planDTO.getDayEatingFat());
         user.setDayEatingProtein(planDTO.getDayEatingProtein());
 
-        userPlanService.updateById(user);
+        paramPlanService.updateById(user);
 
         return R.success(null);
     }
