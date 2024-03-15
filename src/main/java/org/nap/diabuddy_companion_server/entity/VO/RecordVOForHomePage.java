@@ -13,8 +13,8 @@ public class RecordVOForHomePage {
 
     private String mainValue;
 
-    public RecordVOForHomePage() {
-    }
+    private String recordRootId;
+
 
     public RecordVOForHomePage(String recordId, String recordType, String mainKey, String mainValue) {
         this.recordId = recordId;

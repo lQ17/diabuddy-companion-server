@@ -5,4 +5,5 @@ import org.nap.diabuddy_companion_server.entity.Record;
 import org.nap.diabuddy_companion_server.entity.RecordExercise;
 
 public interface RecordExerciseService extends IService<RecordExercise> {
+    RecordExercise findLastExercise(Integer userId);
 }

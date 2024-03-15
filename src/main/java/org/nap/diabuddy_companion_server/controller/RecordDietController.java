@@ -1,5 +1,6 @@
 package org.nap.diabuddy_companion_server.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.nap.diabuddy_companion_server.common.R;
@@ -9,10 +10,7 @@ import org.nap.diabuddy_companion_server.entity.RecordDiet;
 import org.nap.diabuddy_companion_server.service.RecordDietService;
 import org.nap.diabuddy_companion_server.service.RecordService;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -46,5 +44,33 @@ public class RecordDietController {
 
         return R.success(null);
 
+    }
+
+    @PutMapping("/diet")
+    @Transactional
+    public R<Object> updateRecord(@RequestBody RecordDiet recordDiet){
+
+        if (recordDiet == null || recordDiet.getId() == null) {
+            return R.error("请求数据无效");
+        }
+
+        boolean isUpdated = recordDietService.updateById(recordDiet);
+
+        if(isUpdated){
+            LambdaQueryWrapper<Record> queryWrapper = new LambdaQueryWrapper<>();
+            // 根据 子表id 和 子表类型 确定总表的唯一数据
+            queryWrapper.eq(Record::getRecordId,recordDiet.getId());
+            queryWrapper.eq(Record::getRecordType,"diet");
+            // 获得总表实体
+            Record record = recordService.getOne(queryWrapper);
+            // 改时间
+            record.setRecordTime(recordDiet.getRecordTime());
+            // 存总表
+            recordService.updateById(record);
+        }else{
+            return R.error("修改失败，请重试");
+        }
+
+        return R.success(null);
     }
 }

@@ -5,4 +5,5 @@ import org.nap.diabuddy_companion_server.entity.Record;
 import org.nap.diabuddy_companion_server.entity.RecordAgent;
 
 public interface RecordAgentService extends IService<RecordAgent> {
+    RecordAgent findLastAgent(Integer userId);
 }

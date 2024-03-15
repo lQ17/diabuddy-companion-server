@@ -8,12 +8,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.nap.diabuddy_companion_server.common.R;
 import org.nap.diabuddy_companion_server.entity.*;
 import org.nap.diabuddy_companion_server.entity.Record;
+import org.nap.diabuddy_companion_server.entity.VO.RecordVOForDetail;
 import org.nap.diabuddy_companion_server.entity.VO.RecordVOForHomePage;
 import org.nap.diabuddy_companion_server.entity.VO.RecordVOForListPage;
 import org.nap.diabuddy_companion_server.service.*;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -137,29 +140,140 @@ public class RecordController {
         return R.success(voPage);
     }
 
+    /**
+     * 删除、总表和对应子表
+     * @param recordRootId
+     * @return
+     */
+    @Transactional
+    @DeleteMapping("/delete/{recordRootId}")
+    public R<Object> deleteRecordByRootId(@PathVariable("recordRootId") Integer recordRootId){
+        Record record = recordService.getById(recordRootId);
+
+        if(record == null){
+            return R.error("该记录不存在");
+        }
+
+        //删除总表记录、子表记录
+        recordService.removeById(recordRootId);
+        switch (record.getRecordType()) {
+            case "agent" -> recordAgentService.removeById(record.getRecordId());
+            case "blood_sugar" -> recordBloodSugarService.removeById(record.getRecordId());
+            case "diet" -> recordDietService.removeById(record.getRecordId());
+            case "exercise" -> recordExerciseService.removeById(record.getRecordId());
+            case "injection" -> recordInjectionService.removeById(record.getRecordId());
+        }
+
+        return R.success(null);
+    }
+
+    /**
+     * 详情页的数据查看
+     * @param recordRootId
+     * @return
+     */
+    @GetMapping("/detail/{recordRootId}")
+    public R<RecordVOForDetail> getRecordDetailByRootId(@PathVariable("recordRootId") Integer recordRootId){
+
+        Record record = recordService.getById(recordRootId);
+
+        if(record == null){
+            return R.error("记录不存在");
+        }
+
+        RecordVOForDetail vo = new RecordVOForDetail();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String timeString = sdf.format(record.getRecordTime());
+
+        vo.setRecordType(record.getRecordType());
+        vo.setRecordTime(timeString);
+
+        RecordVOForDetail.TypeDetail typeDetail = new RecordVOForDetail.TypeDetail();
+
+        //公共值
+        typeDetail.setId(record.getRecordId());
+        typeDetail.setUserId(record.getUserId());
+        typeDetail.setRecordTime(timeString);
+
+        switch (record.getRecordType()) {
+            case "agent" -> {
+                RecordAgent recordAgent = recordAgentService.getById(record.getRecordId());
+                typeDetail.setDosage(recordAgent.getDosage());
+                typeDetail.setAgentName(recordAgent.getAgentName());
+                typeDetail.setRemark(recordAgent.getRemark());
+            }
+            case "blood_sugar" -> {
+                RecordBloodSugar recordBloodSugar = recordBloodSugarService.getById(record.getRecordId());
+                typeDetail.setBloodSugarValue(recordBloodSugar.getBloodSugarValue());
+                typeDetail.setMeasureTime(recordBloodSugar.getMeasureTime());
+                typeDetail.setRemark(recordBloodSugar.getRemark());
+            }
+            case "diet" -> {
+                RecordDiet recordDiet = recordDietService.getById(record.getRecordId());
+                typeDetail.setFoodDetail(recordDiet.getFoodDetail());
+                typeDetail.setFoodPic(recordDiet.getFoodPic());
+                typeDetail.setMealType(recordDiet.getMealType());
+                typeDetail.setTotalCarb(recordDiet.getTotalCarb());
+                typeDetail.setTotalProtein(recordDiet.getTotalProtein());
+                typeDetail.setTotalFat(recordDiet.getTotalFat());
+                typeDetail.setTotalEnergy(recordDiet.getTotalEnergy());
+                typeDetail.setRemark(recordDiet.getRemark());
+            }
+            case "exercise" -> {
+                RecordExercise recordExercise = recordExerciseService.getById(record.getRecordId());
+                typeDetail.setExerciseType(recordExercise.getExerciseType());
+                typeDetail.setDuration(recordExercise.getDuration());
+                typeDetail.setRemark(recordExercise.getRemark());
+            }
+            case "injection" -> {
+                RecordInjection recordInjection = recordInjectionService.getById(record.getRecordId());
+                typeDetail.setInsulinType(recordInjection.getInsulinType());
+                typeDetail.setInjectionType(recordInjection.getInjectionType());
+                typeDetail.setBolus(recordInjection.getBolus());
+                typeDetail.setSquareWaveRate(recordInjection.getSquareWaveRate());
+                typeDetail.setSquareWaveTime(recordInjection.getSquareWaveTime());
+                typeDetail.setRemark(recordInjection.getRemark());
+            }
+        }
+
+        vo.setTypeDetail(typeDetail);
+
+        return R.success(vo);
+    }
+
     private List<RecordVOForHomePage> recordToVO(List<Record> records){
         List<RecordVOForHomePage> recordList = new ArrayList<>();
         for (Record record : records) {
             switch (record.getRecordType()) {
                 case "agent" -> {
                     RecordAgent recordAgent = recordAgentService.getById(record.getRecordId());
-                    recordList.add(agentToVO(recordAgent));
+                    RecordVOForHomePage vo = agentToVO(recordAgent);
+                    vo.setRecordRootId(record.getRecordRootId().toString());
+                    recordList.add(vo);
                 }
                 case "blood_sugar" -> {
                     RecordBloodSugar recordBloodSugar = recordBloodSugarService.getById(record.getRecordId());
-                    recordList.add(bloodSugarToVO(recordBloodSugar));
+                    RecordVOForHomePage vo = bloodSugarToVO(recordBloodSugar);
+                    vo.setRecordRootId(record.getRecordRootId().toString());
+                    recordList.add(vo);
                 }
                 case "diet" -> {
                     RecordDiet recordDiet = recordDietService.getById(record.getRecordId());
-                    recordList.add(dietToVO(recordDiet));
+                    RecordVOForHomePage vo = dietToVO(recordDiet);
+                    vo.setRecordRootId(record.getRecordRootId().toString());
+                    recordList.add(vo);
                 }
                 case "exercise" -> {
                     RecordExercise recordExercise = recordExerciseService.getById(record.getRecordId());
-                    recordList.add(exerciseToVO(recordExercise));
+                    RecordVOForHomePage vo = exerciseToVO(recordExercise);
+                    vo.setRecordRootId(record.getRecordRootId().toString());
+                    recordList.add(vo);
                 }
                 case "injection" -> {
                     RecordInjection recordInjection = recordInjectionService.getById(record.getRecordId());
-                    recordList.add(injectionToVO(recordInjection));
+                    RecordVOForHomePage vo = injectionToVO(recordInjection);
+                    vo.setRecordRootId(record.getRecordRootId().toString());
+                    recordList.add(vo);
                 }
                 default -> {
                 }
