@@ -5,4 +5,5 @@ import org.nap.diabuddy_companion_server.entity.plan.InsulinPumpBasalRate;
 
 public interface InsulinPumpBasalRateService extends IService<InsulinPumpBasalRate> {
     InsulinPumpBasalRate findLastRate(Integer userId);
+    InsulinPumpBasalRate findLatestByUserId(Integer userId);
 }

@@ -6,7 +6,8 @@ import lombok.Setter;
 
 @Data
 public class UserTotalPlanDTO {
-    private Integer id; // 此处为userId
+
+    private Integer userId; // 此处为userId
 
     // 控糖参数
     private Float tdd;
@@ -21,6 +22,12 @@ public class UserTotalPlanDTO {
     private String treatmentOption;
     private String remark; // 来自plan总表
 
+    // 子对象
+    private UserTotalPlanDTO.InsulinPump insulinPump;
+    private UserTotalPlanDTO.PreMealAndBasal preMealAndBasal;
+    private UserTotalPlanDTO.Premixed premixed;
+    private UserTotalPlanDTO.Agent agent;
+
     @Getter
     @Setter
     public static class InsulinPump {
@@ -28,7 +35,7 @@ public class UserTotalPlanDTO {
         private Integer planId; // 关联到治疗方案表(treatment_plans)的plan_id
         private Integer userId;
         private Integer totalInsulinPumpBasalRateId; // 关联到胰岛素泵基础率表(insulin_pump_basal_rate)的id
-        private Integer totalInsulinPumpBasal; // 基础率量
+        private Float totalInsulinPumpBasal; // 基础率量
         private String insulinType; // 表示使用的胰岛素类型
         private Float breakfastBolus; // 表示早餐--大剂量注射用量
         private Float lunchBolus; // 表示午餐--大剂量注射用量

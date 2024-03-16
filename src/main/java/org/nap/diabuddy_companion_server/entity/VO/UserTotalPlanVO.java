@@ -34,7 +34,7 @@ public class UserTotalPlanVO {
         private Integer planId; // 关联到治疗方案表(treatment_plans)的plan_id
         private Integer userId;
         private Integer totalInsulinPumpBasalRateId; // 关联到胰岛素泵基础率表(insulin_pump_basal_rate)的id
-        private Integer totalInsulinPumpBasal; // 基础率量
+        private Float totalInsulinPumpBasal; // 基础率量
         private String insulinType; // 表示使用的胰岛素类型
         private Float breakfastBolus; // 表示早餐--大剂量注射用量
         private Float lunchBolus; // 表示午餐--大剂量注射用量
@@ -73,7 +73,7 @@ public class UserTotalPlanVO {
 
     @Getter
     @Setter
-    public static class Agent {
+    public static class Agent{
         private Integer id;
         private Integer planId;
         private String agentName;
