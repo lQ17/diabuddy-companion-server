@@ -11,6 +11,7 @@ import org.nap.diabuddy_companion_server.entity.user.User;
 import org.nap.diabuddy_companion_server.entity.VO.UserVO;
 import org.nap.diabuddy_companion_server.service.user.EmailService;
 import org.nap.diabuddy_companion_server.service.user.UserService;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
@@ -153,6 +154,114 @@ public class UserController {
     public R<Object> updateUserPhone(@RequestBody User user){
         userService.updateById(user);
         return R.success(null);
+    }
+
+    @GetMapping("/private/{userId}")
+    public R<HashMap<String, Integer>> getPrivateStatus(@PathVariable("userId") Integer userId){
+        User user = userService.getById(userId);
+        HashMap<String, Integer> res = new HashMap<>();
+        Integer isPrivateUser = user.getIsPrivateUser();
+        if(isPrivateUser == null){
+            isPrivateUser = 0;
+        }
+        res.put("isPrivateUser",isPrivateUser);
+        return R.success(res);
+    }
+
+    @PostMapping("/private")
+    public R<Object> updatePrivateStatus(@RequestBody Map<String, Integer> dto){
+        Integer userId = dto.get("user_id");
+        Integer isPrivateUser = dto.get("is_private_user");
+
+        User user = userService.getById(userId);
+
+        if(user == null){
+            return R.error("用户获取错误");
+        }
+
+        user.setIsPrivateUser(isPrivateUser);
+        userService.updateById(user);
+
+        return R.success(null);
+    }
+
+    @PutMapping("/update-password")
+    public R<Object> updatePassword(@RequestBody Map<String, Object> dto){
+        Integer userId = (Integer) dto.get("id");
+        String oldPassword = (String) dto.get("old_password");
+        String newPassword = (String) dto.get("new_password");
+
+        User user = userService.getById(userId);
+
+        if(!user.getPassword().equals(oldPassword)){
+            return R.error("旧密码不正确");
+        }
+
+        user.setPassword(newPassword);
+
+        userService.updateById(user);
+
+        return R.success(null);
+    }
+
+    @PutMapping("/username")
+    public R<Object> updateUsername(@RequestBody Map<String, Object> dto){
+        Integer userId = (Integer) dto.get("id");
+        String username = (String) dto.get("username");
+
+        User user = userService.getById(userId);
+
+        if(user == null){
+            return R.error("用户不存在");
+        }
+
+        user.setUsername(username);
+
+        userService.updateById(user);
+
+        return R.success(null);
+    }
+
+    @PutMapping("/update-info")
+    public R<Object> updateUserInfo(@RequestBody User userDTO){
+        User userById = userService.getById(userDTO.getId());
+
+        if(userById == null){
+            return R.error("更新失败，请重试");
+        }
+
+        userById.setUsername(userDTO.getUsername());
+        userById.setFullName(userDTO.getFullName());
+        userById.setGender(userDTO.getGender());
+        userById.setBirthday(userDTO.getBirthday());
+        userById.setAddress(userDTO.getAddress());
+
+        boolean isUpdated = userService.updateById(userById);
+
+        if(isUpdated){
+            return R.success(null);
+        }else{
+            return R.error("更新失败，请重试");
+        }
+    }
+
+    @PutMapping("/pic")
+    public R<Object> updateUserAvatar(@RequestBody User userDTO){
+        User userById = userService.getById(userDTO.getId());
+
+        if(userById == null){
+            return R.error("更新错误，请重试");
+        }
+
+        userById.setUserPic(userDTO.getUserPic());
+        boolean isUpdated = userService.updateById(userById);
+
+        if(isUpdated){
+            return R.success(null);
+        }else{
+            return R.error("更新失败，请重试");
+        }
+
     }
 
     private String generateRandomString(int length) {

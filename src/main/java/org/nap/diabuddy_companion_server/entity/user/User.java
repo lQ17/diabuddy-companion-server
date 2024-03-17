@@ -46,6 +46,9 @@ public class User implements Serializable {
     private Float dayEatingProtein;
     private Float dayEatingFat;
 
+
+    private Integer isPrivateUser;
+
     // 默认构造方法
     public User() {
     }

@@ -38,12 +38,19 @@ public class UserShareController {
 
         UserVOForSearch vo = new UserVOForSearch();
 
-        if(user == null){
-            return R.error("不存在该用户");
-        }else{
-            vo.setId(user.getId());
-            vo.setUsername(user.getUsername());
-            vo.setFullName(user.getFullName());
+        // 隐私设置
+        if (user == null) {
+            return R.error("该用户不存在");
+        } else {
+            Integer isPrivate = user.getIsPrivateUser();
+            if (isPrivate == null || isPrivate == 0) {
+                vo.setId(user.getId());
+                vo.setUsername(user.getUsername());
+                vo.setFullName(user.getFullName());
+                return R.success(vo);
+            } else if (isPrivate == 1) {
+                return R.error("该用户不存在");
+            }
         }
         return R.success(vo);
     }
