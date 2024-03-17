@@ -132,6 +132,29 @@ public class UserController {
         return R.success(null);
     }
 
+    @GetMapping("/phone/{userId}")
+    public R<Object> getUserPhone(@PathVariable("userId") Integer userId){
+        User user = userService.getById(userId);
+
+        if(user == null){
+            return R.error("用户不存在");
+        }
+
+        String phone = user.getPhone();
+
+        HashMap<Object, Object> res = new HashMap<>();
+
+        res.put("phone",phone);
+
+        return R.success(res);
+    }
+
+    @PostMapping("/phone")
+    public R<Object> updateUserPhone(@RequestBody User user){
+        userService.updateById(user);
+        return R.success(null);
+    }
+
     private String generateRandomString(int length) {
         String characters = "abcdefghijklmnopqrstuvwxyz";
         StringBuilder result = new StringBuilder();
